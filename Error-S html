@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error S -- Діагностика помилок</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #000075, #840172, #004285);
+            background-size: 300% 300%;
+            animation: gradientMove 4s medium infinite;
+            color: #e0faff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+        }
+        @keyframes gradientMove {
+            0% { background-position: 0% 5%; }
+            20% { background-position: 10% 5%; }
+            40% { background-position: 0% 5%; }
+        }
+        header {
+    font-size: 3.4rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+    animation: glow 4s ease-in-out infinite;
+    font-family: 'Montserrat', bold;
+}
+        @keyframes glow {
+            0%, 100% { text-shadow: 0 0 5px #0077b6, 0 0 10px #000642; color: #fff; }
+            20% { text-shadow: 0 0 15px #00042E, 0 0 30px #00042E; color: #e0faff; }
+        }
+        h2 {
+            font-size: 0.9rem;
+            font-weight: normal;
+            margin-bottom: 30px;
+            opacity: 0.8;
+        }
+        main {
+            background: rgba(0, 20, 40, 0.85);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 400px;
+        }
+        select, input, button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border: none;
+            font-size: 1rem;
+        }
+        select, input {
+            background: #f0f8ff;
+            color: #001f3f;
+        }
+        button {
+            background: #0077b6;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #0096c7;
+        }
+        /* Модалка */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: #001f3f;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 350px;
+            color: #e0faff;
+            position: relative;
+            animation: pop 0.3s ease;
+        }
+        @keyframes pop {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .close-btn {
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: #00b4d8;
+        }
+    </style>
+</head>
+<body>
+
+    <div style="height:50px;"></div>
+
+    <header>Error S</header>
+    <h2>Діагностика помилок пральних машин</h2>
+
+    <div style="height:50px;"></div>
+
+    <main>
+        <select id="brandSelect">
+            <option value="">Оберіть бренд</option>
+            <option value="LG">LG</option>
+            <option value="SAMSUNG">Samsung</option>
+            <option value="BOSCH">Bosch</option>
+            <option value="WHIRLPOOL">Whirlpool</option>
+            <option value="INDESIT">Indesit</option>
+            <option value="ELECTROLUX">Electrolux</option>
+            <option value="CANDY">Candy</option>
+            <option value="ZANUSSI">Zanussi</option>
+            <option value="SIEMENS">Siemens</option>
+            <option value="ARISTON">Ariston</option>
+        </select>
+        <input type="text" id="errorCode" placeholder="Введіть код помилки (наприклад, OE)">
+        <button id="searchBtn">Пошук помилки</button>
+    </main>
+
+    <!-- Модальне вікно -->
+    <div class="modal" id="errorModal">
+        <div class="modal-content">
+            <span class="close-btn" id="closeModal">&times;</span>
+            <div id="modalText"></div>
+        </div>
+    </div>
+
+    <script>
+        const errorsDB = {
+            "LG": {
+                "OE": "Не працює злив -- перевірте зливний фільтр і насос.",
+                "UE": "Дисбаланс завантаження -- розподіліть білизну.",
+                "DE": "Помилка закриття дверей -- перевірте замок люка."
+            },
+            "SAMSUNG": {
+                "5E": "Не зливається вода -- забитий фільтр або насос.",
+                "E2": "Помилка нагріву -- перевірте датчик температури.",
+                "DE": "Помилка блокування люка."
+            },
+            "BOSCH": {
+                "E17": "Проблема з подачею води -- перевірте кран і шланг.",
+                "E18": "Заблокований злив -- перевірте фільтр і насос."
+            },
+            "WHIRLPOOL": {
+                "F02": "Проблема з зливом -- перевірте насос і шланг.",
+                "F05": "Помилка датчика температури."
+            },
+            "INDESIT": {
+                "F05": "Забитий фільтр зливу або несправний насос.",
+                "F08": "Проблема з нагрівачем або датчиком температури."
+            },
+            "ELECTROLUX": {
+                "E10": "Немає подачі води -- перевірте кран.",
+                "E20": "Проблема зі зливом -- перевірте насос."
+            },
+            "CANDY": {
+                "E03": "Проблема з відкачуванням води.",
+                "E07": "Несправність мотора барабана."
+            },
+            "ZANUSSI": {
+                "E10": "Відсутня подача води.",
+                "E20": "Несправність зливного насоса."
+            },
+            "SIEMENS": {
+                "E17": "Проблема з подачею води.",
+                "E18": "Проблема зі зливом води."
+            },
+            "ARISTON": {
+                "F05": "Забитий фільтр або зливний насос.",
+                "F08": "Проблема з нагрівальним елементом."
+            }
+        };
+
+        document.getElementById("searchBtn").addEventListener("click", () => {
+            const brand = document.getElementById("brandSelect").value.trim().toUpperCase();
+            const code = document.getElementById("errorCode").value.trim().toUpperCase();
+            const modal = document.getElementById("errorModal");
+            const modalText = document.getElementById("modalText");
+
+            if (!brand) {
+                modalText.textContent = "Будь ласка, оберіть бренд.";
+            } else if (!code) {
+                modalText.textContent = "Будь ласка, введіть код помилки.";
+            } else if (errorsDB[brand] && errorsDB[brand][code]) {
+                modalText.innerHTML = `<strong>Код :</strong><br>`;
+            } else {
+                modalText.textContent = `Код  не знайдено для бренду .`;
+            }
+
+            modal.style.display = "flex";
+        });
+
+        document.getElementById("closeModal").addEventListener("click", () => {
+            document.getElementById("errorModal").style.display = "none";
+        });
+
+        window.addEventListener("click", (e) => {
+            if (e.target === document.getElementById("errorModal")) {
+                document.getElementById("errorModal").style.display = "none";
+            }
+        });
+    </script>
+
+</body>
